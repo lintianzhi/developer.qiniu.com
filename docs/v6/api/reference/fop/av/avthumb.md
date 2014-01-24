@@ -100,85 +100,9 @@ http://apitest.qiniudn.com/sample.wav?avthumb/mp3
 
 视频转码是七牛云存储提供的云处理功能。  
 使用视频转码功能，用户可以对存放在七牛云存储的视频资源进行编码和转换处理。  
-视频转码包括两种方式：[视频转换预设集](#video-preset)和[视频自定义转换](#self-def-video-convert)。  
-
-<a id="video-preset"></a>
-## 视频转换预设集
-
-<a id="video-preset-description"></a>
-### 描述
-
-视频转换预设集是七牛云存储预先设置的一组视频转码设置，适用于特定业务场景。  
-用户可以方便地使用这些预设的转码设置，面向特定格式进行转码。  
-
-<a id="video-preset-spec"></a>
-### 接口规格（videoPresetSpec）  
-
-```
-avthumb/<Preset>
-```
-
-预设集列表：  
-
-预设集       | 视频编码器 | 视频格式 | 分辨率   | 视频码率 | 音频编码器 | 音频码率 | 音频采样率
-:----------- | :--------- | :------- | :------- | :------- | :--------- | :------- | :---------
-android_high | libx264    | mp4      | 480x320  | 700k     | libfaac    | 128k     | 48k
-android_low  | libx264    | mp4      | 480x320  | 96k      | libfaac    | 64k      | 48k
-android      | libx264    | mp4      | 480x320  | 512k     | libfaac    | 128k     | 48k
-flash        | flv        | flv      | 320x240  | 512k     | libmp3lame | 64k      | 44100
-ipad_high    | libx264    | mp4      | 1024x768 | 1200k    | libfaac    | 128k     | 48k
-ipad_low     | libx264    | mp4      | 1024x768 | 512k     | libfaac    | 128k     | 48k
-ipad         | libx264    | mp4      | 1024x768 | 700k     | libfaac    | 128k     | 48k
-iphone_high  | libx264    | mp4      | 480x320  | 700k     | libfaac    | 128k     | 48k
-iphone_low   | libx264    | mp4      | 480x320  | 96k      | libfaac    | 64k      | 48k
-iphone       | libx264    | mp4      | 480x320  | 512k     | libfaac    | 128k     | 48k
-webm         | libvpx     | webm     |          | 700k     | libvorbis  | 128k     | 48k
-
-<a id="video-request"></a>
-### 请求
-
-<a id="video-request-syntax"></a>
-#### 请求语法
-
-```
-GET <VideoDownloadURI>?<videoPresetSpec> HTTP/1.1
-Host: <VideoDownloadHost>
-```
-
-<a id="video-response"></a>
-### 响应
-
-<a id="video-response-syntax"></a>
-#### 响应语法
-
-```
-HTTP/1.1 200 OK
-Content-Type: <VideoMimeType>
-
-<VideoBinaryData>
-```
-
-<a id="audio-samples"></a>
-### 示例
-
-1. 将mp4视频转换为`iphone`格式：  
-
-	```
-    http://open.qiniudn.com/thinking-in-go.mp4?avthumb/iphone
-	```
-
-	[点击观看效果](http://open.qiniudn.com/thinking-in-go.mp4?avthumb/iphone)
-
-2. 将mp4视频格式转换为`andriod-high`格式：  
-
-	```
-    http://open.qiniudn.com/thinking-in-go.mp4?avthumb/android_high
-	```
-
-	[点击观看效果](http://open.qiniudn.com/thinking-in-go.mp4?avthumb/android_high)
 
 <a id="video-selfdef-convert"></a>
-## 视频自定义转换
+## 视频转码
 
 <a id="video-preset-description"></a>
 ### 描述
@@ -213,6 +137,7 @@ avthumb/<Format>
 `/vb/<VideoBitRate>`    |      | 视频比特率，单位：比特每秒（bit/s），常用视频比特率：128k，1.25m，5m等。 
 `/vcodec/<VideoCodec>`  |      | 视频编码方案，支持方案：libx264，libvpx，libtheora，libxvid等。 
 `/acodec/<AudioCodec>`  |      | 音频编码方案，支持方案：libmp3lame，libfaac，libvorbis等。 
+`/scodec/<SubtitleCodec>`|     | 字幕的编码器，支持方案：mov_text, srt, ass等
 `/ss/<SeekStart>`       |      | 指定视频截取的开始时间，单位：秒。用于视频截取，从一段视频中截取一段视频。 
 `/t/<Duration>`         |      | 指定视频截取的长度，单位：秒。用于视频截取，从一段视频中截取一段视频。 
 `/s/<Resolution>`       |      | 指定视频分辨率，格式为 wxh 或者预定义值。 
@@ -294,17 +219,18 @@ Content-Type: <VideoMimeType>
 ### 附注
 
 - 支持的视频编码器（Codec）有：libx264，libvpx，libtheora，libxvid等。
-- 支持的音频编码器（Codec）有：libmp3lame，libfaac，libvorbis等。  
-- 支持使用自定义参数覆盖预设集的对应参数，示例如下：
+- 支持的音频编码器（Codec）有：libmp3lame，libfaac，libvorbis等。
+- 我们为一些预设集设置了默认参数，如果用户觉得某些参数不适合自己的业务场景可以在后面加参数覆盖。
 
-	```
-    avthumb/iphone
+默认参数列表：  
 
-    =>
+格式         | 视频编码器 | 视频码率 | 音频编码器 | 音频码率 | 音频采样率
+:----------- | :--------- | :------- | :--------- | :------- | :---------
+flash        | flv        | 512k     | libmp3lame | 64k      | 44100
+webm         | libvpx     | 700k     | libvorbis  | 128k     | 48k
+mp3          | -          | -        | libmp3lame | 128k     | 44100
+amr          | -          | -        | amr_nb     | 12.20k   | 8000
 
-    avthumb/iphone/rotate/auto  则在预设集的基础上增加自动旋转功能
-    avthumb/iphone/vb/500k      将视频码率更改为500k
-	```
 
 <a id="avthumb-optimization"></a>
 ### 优化建议
