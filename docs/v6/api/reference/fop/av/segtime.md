@@ -16,6 +16,7 @@ order: 148
 
 ## 使用
 命令可以使用我们预先定义的预设集或者自己选择需要的参数，如：
+
 ```
 预设集：avthumb/m3u8/segtime/10/preset/audio_32k
 自定义：avthumb/m3u8/vb/500k/t/10
@@ -153,6 +154,7 @@ hls加密是利用AES-128位对每个ts文件进行加密，播放器在取得Pl
 如何加密RSA：
 
 可以编程的方法，或者使用`openssl`，下面提供`openssl`的版本：
+
 ```
 $ echo -n [AES128KEY] | openssl rsautl -encrypt -oaep -inkey [QINIU_PUB_KEY_FILE] -pubin | openssl base64 -A | tr "+/" "-_"
 ```
